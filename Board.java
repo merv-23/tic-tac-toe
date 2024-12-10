@@ -1,12 +1,27 @@
+import java.util.Scanner;
+
 public class Board {
-    public int grid_size;;    
-    
+    public static int grid_size;
+    public static String[][] game_board = new String[grid_size][grid_size];
+    public static Scanner read = new Scanner(System.in);  
+    public static String player_state = "X";
     public Board(int grid_size) {
         this.grid_size = grid_size;
     }
     
     public void make_move() {
-        
+        String coords = Board.read.nextLine();
+        String[] moves = coords.split(" "); // Split by a spaces but any parameter can be specified
+
+        int row = Integer.parseInt(moves[0]); int col = Integer.parseInt(moves[1]);
+
+        if (Board.game_board[row][col] == null) {
+            
+        }
+
+
+
+
             
     }
 
