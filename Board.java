@@ -52,42 +52,46 @@ public class Board {
       print_board();
    }
 
-   private Boolean check_the_thing(int i, int j) {
-      try {
-         if (Board.game_board[i][j].equals(Board.game_board[i + 1][j])) {
-            return (Board.game_board[i][j].equals(Board.game_board[i + 1][j]));
-         } 
-         else if (Board.game_board[i][j].equals(Board.game_board[i][j + 1])) {
-            return (Board.game_board[i][j].equals(Board.game_board[i][j + 1]));
-         } 
-         else if (Board.game_board[i][j].equals(Board.game_board[i + 1][j + 1])) {
-            return (Board.game_board[i][j].equals(Board.game_board[i + 1][j + 1]));
-         }
-          else if (Board.game_board[i][j].equals(Board.game_board[i - 1][j - 1])) {
-            return (Board.game_board[i][j].equals(Board.game_board[i - 1][j - 1]));
-         } 
-         else if (Board.game_board[i][j].equals(Board.game_board[i][j - 1])) {
-            return (Board.game_board[i][j].equals(Board.game_board[i][j - 1]));
-         }
-          else if (Board.game_board[i][j].equals(Board.game_board[i - 1][j])) {
-            return (Board.game_board[i][j].equals(Board.game_board[i - 1][j]));
-         } 
-         else {
-            return false;
-         }
-      } catch (IndexOutOfBoundsException e) {
+   private String check_the_thing(int i, int j, int depth) {
+      
+
+      if (depth == 3) {
+         return "It's done";
       }
-      return true;
+      else if (Board.game_board[i][j].equals(Board.game_board[i + 1][j])) {
+         return check_the_thing(i+1, j, depth+1);
+      } 
+      else if (Board.game_board[i][j].equals(Board.game_board[i][j + 1])) {
+         return check_the_thing(i, j+1, depth+1);
+      } 
+      else if (Board.game_board[i][j].equals(Board.game_board[i + 1][j + 1])) {
+         return check_the_thing(i+1, j+1, depth+1);
+      }
+         else if (Board.game_board[i][j].equals(Board.game_board[i - 1][j - 1])) {
+         return check_the_thing(i-1, j-1, depth+1);
+      } 
+      else if (Board.game_board[i][j].equals(Board.game_board[i][j - 1])) {
+         return check_the_thing(i, j-1, depth+1);
+      }
+         else if (Board.game_board[i][j].equals(Board.game_board[i - 1][j])) {
+         return check_the_thing(i-1, j, depth);
+      } 
+      else {
+         return "not today brody";
+      }
    }
 
    @SuppressWarnings("StringEquality")
    private void win_lose(String s) {
       String target = s;
+      int depth = 0;
       try {
          for (int i = 0; i <= Board.game_board.length; i++) {
             for (int j = 0; j <= Board.game_board.length; j++) {
                if (Board.game_board[i][j] == target) {
-                  check_the_thing(i, j);
+                  if (check_the_thing(i, j, depth) == "It's done") {
+                     System.err.println("yerr");
+                  }
                }
             }
          }
