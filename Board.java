@@ -1,13 +1,17 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Board {
    private final int grid_size;
    private static String[][] game_board;
+   private ArrayList<Integer> crossed = new ArrayList<>();
    private static final Scanner read = new Scanner(System.in);
    private static String player_state = " ";
    private static Boolean first_move = true;
    private static String winner;
    private static Boolean some_body_won = false;
+   private static int player_x_score;
+   private static int player_o_score;
 
    // Constructor
    public Board(int grid_size) {
@@ -54,33 +58,29 @@ public class Board {
       print_board();
    }
 
-   // Helper methods
    private String check_up(int i, int j, int depth) {
       if (depth == 2) {
          return "It's done";
       }
       try {
          if (Board.game_board[i][j].equals(Board.game_board[i + 1][j])) {
+            crossed.add(i);
             return check_up(i + 1, j, depth + 1);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds gracefully
       }
       return "Nope";
    }
 
-   // Add missing methods
    private String check_diagonal_down_right(int i, int j, int depth) {
       if (depth == 2) {
          return "It's done";
       }
       try {
-         // Check diagonal up-right
          if (Board.game_board[i][j].equals(Board.game_board[i - 1][j + 1])) {
             return check_diagonal_down_right(i - 1, j + 1, depth + 1);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Gracefully handle out-of-bounds
       }
       return "Nope";
    }
@@ -90,12 +90,10 @@ public class Board {
          return "It's done";
       }
       try {
-         // Check diagonal down-left
          if (Board.game_board[i][j].equals(Board.game_board[i + 1][j - 1])) {
             return check_diagonal_up_left(i + 1, j - 1, depth + 1);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Gracefully handle out-of-bounds
       }
       return "Nope";
    }
@@ -109,7 +107,6 @@ public class Board {
             return check_right(i, j + 1, depth + 1);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds gracefully
       }
       return "Nope";
    }
@@ -123,7 +120,6 @@ public class Board {
             return check_diagonal_up_right(i + 1, j + 1, depth + 1);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds gracefully
       }
       return "Nope";
    }
@@ -137,7 +133,6 @@ public class Board {
             return check_diagonal_down_left(i - 1, j - 1, depth + 1);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds gracefully
       }
       return "Nope";
    }
@@ -151,7 +146,6 @@ public class Board {
             return check_left(i, j - 1, depth);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds gracefully
       }
       return "Nope";
    }
@@ -165,7 +159,6 @@ public class Board {
             return check_down(i - 1, j, depth);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds gracefully
       }
       return "Nope";
    }
@@ -176,51 +169,44 @@ public class Board {
             return check_up(i, j, depth);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds access for i + 1, j
       }
       try {
-         // Check diagonal up-right
+
          if (Board.game_board[i][j].equals(Board.game_board[i - 1][j + 1])) {
             return check_diagonal_down_right(i, j, depth);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Gracefully handle out-of-bounds
       }
       try {
-         // Check diagonal down-left
+
          if (Board.game_board[i][j].equals(Board.game_board[i + 1][j - 1])) {
             return check_diagonal_up_left(i, j, depth);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Gracefully handle out-of-bounds
       }
       try {
          if (game_board[i][j].equals(game_board[i][j + 1])) {
             return check_right(i, j, depth);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds access for i, j + 1
       }
       try {
          if (game_board[i][j].equals(game_board[i + 1][j + 1])) {
             return check_diagonal_up_right(i, j, depth);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds access for i + 1, j + 1
       }
       try {
          if (game_board[i][j].equals(game_board[i - 1][j - 1])) {
             return check_diagonal_down_left(i, j, depth);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds access for i - 1, j - 1
       }
       try {
          if (game_board[i][j].equals(game_board[i][j - 1])) {
             return check_left(i, j, depth);
          }
       } catch (ArrayIndexOutOfBoundsException e) {
-         // Handle out-of-bounds access for i, j - 1
       }
       try {
          if (game_board[i][j].equals(game_board[i - 1][j])) {
@@ -240,22 +226,46 @@ public class Board {
          for (int j = 0; j <= this.grid_size; j++) {
             if (game_board[i][j] == target) {
                if (check_the_thing(i, j, depth) == "It's done") {
-                  some_body_won = true;
-                  winner = target;
-                  break;
+                  if (target == "X") {
+                     player_x_score += 1;
+                     break;
+                  } else {
+                     player_o_score += 1;
+                     break;
+                  }
                }
             }
          }
-
       }
    }
 
    public Boolean got_a_winner() {
+      if ((player_x_score > player_o_score) && got_space() == false) {
+         some_body_won = true;
+         winner = "X wins";
+      } else if ((player_o_score > player_x_score) && got_space() == false) {
+         some_body_won = true;
+         winner = "O wins";
+      } else if ((player_x_score == player_o_score) && got_space() == false) {
+         some_body_won = true;
+         winner = "Well... it's a draw.";
+      }
       return some_body_won;
    }
 
    public String get_winner() {
       return winner;
+   }
+
+   public Boolean got_space() {
+      for (int i = 0; i <= this.grid_size; i++) {
+         for (int j = 0; j <= this.grid_size; j++) {
+            if (game_board[i][j] != null) {
+               return true;
+            }
+         }
+      }
+      return false;
    }
 
    private String get_state(int k, int j) {
