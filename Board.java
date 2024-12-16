@@ -6,6 +6,8 @@ public class Board {
    private static final Scanner read = new Scanner(System.in);
    private static String player_state = " ";
    private static Boolean first_move = true;
+   private static String winner;
+   private static Boolean some_body_won = false;
 
    // Constructor
    public Board(int grid_size) {
@@ -52,57 +54,208 @@ public class Board {
       print_board();
    }
 
-   private String check_the_thing(int i, int j, int depth) {
-      
-
-      if (depth == 3) {
+   // Helper methods
+   private String check_up(int i, int j, int depth) {
+      if (depth == 2) {
          return "It's done";
       }
-      else if (Board.game_board[i][j].equals(Board.game_board[i + 1][j])) {
-         return check_the_thing(i+1, j, depth+1);
-      } 
-      else if (Board.game_board[i][j].equals(Board.game_board[i][j + 1])) {
-         return check_the_thing(i, j+1, depth+1);
-      } 
-      else if (Board.game_board[i][j].equals(Board.game_board[i + 1][j + 1])) {
-         return check_the_thing(i+1, j+1, depth+1);
+      try {
+         if (Board.game_board[i][j].equals(Board.game_board[i + 1][j])) {
+            return check_up(i + 1, j, depth + 1);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds gracefully
       }
-         else if (Board.game_board[i][j].equals(Board.game_board[i - 1][j - 1])) {
-         return check_the_thing(i-1, j-1, depth+1);
-      } 
-      else if (Board.game_board[i][j].equals(Board.game_board[i][j - 1])) {
-         return check_the_thing(i, j-1, depth+1);
+      return "Nope";
+   }
+
+   // Add missing methods
+   private String check_diagonal_down_right(int i, int j, int depth) {
+      if (depth == 2) {
+         return "It's done";
       }
-         else if (Board.game_board[i][j].equals(Board.game_board[i - 1][j])) {
-         return check_the_thing(i-1, j, depth);
-      } 
-      else {
-         return "not today brody";
+      try {
+         // Check diagonal up-right
+         if (Board.game_board[i][j].equals(Board.game_board[i - 1][j + 1])) {
+            return check_diagonal_down_right(i - 1, j + 1, depth + 1);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Gracefully handle out-of-bounds
       }
+      return "Nope";
+   }
+
+   private String check_diagonal_up_left(int i, int j, int depth) {
+      if (depth == 2) {
+         return "It's done";
+      }
+      try {
+         // Check diagonal down-left
+         if (Board.game_board[i][j].equals(Board.game_board[i + 1][j - 1])) {
+            return check_diagonal_up_left(i + 1, j - 1, depth + 1);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Gracefully handle out-of-bounds
+      }
+      return "Nope";
+   }
+
+   private String check_right(int i, int j, int depth) {
+      if (depth == 2) {
+         return "It's done";
+      }
+      try {
+         if (Board.game_board[i][j].equals(Board.game_board[i][j + 1])) {
+            return check_right(i, j + 1, depth + 1);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds gracefully
+      }
+      return "Nope";
+   }
+
+   private String check_diagonal_up_right(int i, int j, int depth) {
+      if (depth == 2) {
+         return "It's done";
+      }
+      try {
+         if (Board.game_board[i][j].equals(Board.game_board[i + 1][j + 1])) {
+            return check_diagonal_up_right(i + 1, j + 1, depth + 1);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds gracefully
+      }
+      return "Nope";
+   }
+
+   private String check_diagonal_down_left(int i, int j, int depth) {
+      if (depth == 2) {
+         return "It's done";
+      }
+      try {
+         if (Board.game_board[i][j].equals(Board.game_board[i - 1][j - 1])) {
+            return check_diagonal_down_left(i - 1, j - 1, depth + 1);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds gracefully
+      }
+      return "Nope";
+   }
+
+   private String check_left(int i, int j, int depth) {
+      if (depth == 2) {
+         return "It's done";
+      }
+      try {
+         if (Board.game_board[i][j].equals(Board.game_board[i][j - 1])) {
+            return check_left(i, j - 1, depth);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds gracefully
+      }
+      return "Nope";
+   }
+
+   private String check_down(int i, int j, int depth) {
+      if (depth == 2) {
+         return "It's done";
+      }
+      try {
+         if (Board.game_board[i][j].equals(Board.game_board[i - 1][j])) {
+            return check_down(i - 1, j, depth);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds gracefully
+      }
+      return "Nope";
+   }
+
+   private String check_the_thing(int i, int j, int depth) {
+      try {
+         if (game_board[i][j].equals(game_board[i + 1][j])) {
+            return check_up(i, j, depth);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds access for i + 1, j
+      }
+      try {
+         // Check diagonal up-right
+         if (Board.game_board[i][j].equals(Board.game_board[i - 1][j + 1])) {
+            return check_diagonal_down_right(i, j, depth);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Gracefully handle out-of-bounds
+      }
+      try {
+         // Check diagonal down-left
+         if (Board.game_board[i][j].equals(Board.game_board[i + 1][j - 1])) {
+            return check_diagonal_up_left(i, j, depth);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Gracefully handle out-of-bounds
+      }
+      try {
+         if (game_board[i][j].equals(game_board[i][j + 1])) {
+            return check_right(i, j, depth);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds access for i, j + 1
+      }
+      try {
+         if (game_board[i][j].equals(game_board[i + 1][j + 1])) {
+            return check_diagonal_up_right(i, j, depth);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds access for i + 1, j + 1
+      }
+      try {
+         if (game_board[i][j].equals(game_board[i - 1][j - 1])) {
+            return check_diagonal_down_left(i, j, depth);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds access for i - 1, j - 1
+      }
+      try {
+         if (game_board[i][j].equals(game_board[i][j - 1])) {
+            return check_left(i, j, depth);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+         // Handle out-of-bounds access for i, j - 1
+      }
+      try {
+         if (game_board[i][j].equals(game_board[i - 1][j])) {
+            return check_down(i, j, depth);
+         }
+      } catch (ArrayIndexOutOfBoundsException e) {
+      }
+      return "not today brody";
    }
 
    @SuppressWarnings("StringEquality")
    private void win_lose(String s) {
       String target = s;
       int depth = 0;
-      try {
-         for (int i = 0; i <= Board.game_board.length; i++) {
-            for (int j = 0; j <= Board.game_board.length; j++) {
-               if (Board.game_board[i][j] == target) {
-                  if (check_the_thing(i, j, depth) == "It's done") {
-                     System.err.println("yerr");
-                  }
+
+      for (int i = 0; i <= this.grid_size; i++) {
+         for (int j = 0; j <= this.grid_size; j++) {
+            if (game_board[i][j] == target) {
+               if (check_the_thing(i, j, depth) == "It's done") {
+                  some_body_won = true;
+                  winner = target;
+                  break;
                }
             }
          }
-      } catch (IndexOutOfBoundsException e) {
-      }
 
+      }
    }
 
-   public Boolean still_playing() {
+   public Boolean got_a_winner() {
+      return some_body_won;
+   }
 
-      return true;
+   public String get_winner() {
+      return winner;
    }
 
    private String get_state(int k, int j) {
